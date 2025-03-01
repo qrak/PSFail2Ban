@@ -1,6 +1,4 @@
-﻿#Requires -RunAsAdministrator
-
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [int]$LastHours = 6,
     [Switch]$ShowUsernames = $false,
