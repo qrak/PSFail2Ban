@@ -2,7 +2,11 @@
 
 Powershell script to block IP addresses after multiple failed logon attempts.
 
+## Requirements
 
+* Windows 10/11 or Windows Server 2016/2019/2022
+* PowerShell 5.1 or higher
+* Administrative privileges
 
 ## How to install
 
@@ -14,36 +18,45 @@ Install-ScheduledTask.ps1
 
 This will create a scheduled task to run `Update-FirewallRule.ps1` (see below) every hour.
 
-
-
 ## How it works
 
-The main script is `Update-FirewallRule.ps1`. It checks for Event ID 4625 entries in Windows Security logs and adds a blocking rule in Windows Firewall for every IP address with 10 or more failed logons.
+The main script is `Update-FirewallRule.ps1`. It monitors Windows Security logs for suspicious activity and adds blocking rules in Windows Firewall for offending IP addresses. The script checks for:
 
-Also, all blocked IPs will be saved in a `blacklist.txt`. You can change this file if needed. Addresses in this file will ALWAYS be blocked by the firewall rule even if they didn't show up in Security events.
+1. Event ID 4625: Failed logon attempts
+2. Event ID 4776: Failed credential validation attempts
+
+IPs with 3 or more failed attempts of either type will be blocked.
+
+All blocked IPs are saved in a `blacklist.txt`. You can modify this file if needed. Addresses in this file will ALWAYS be blocked by the firewall rule even if they didn't show up in Security events.
 
 In the same way, you could keep a `whitelist.txt`. Addresses in this file will NEVER be blocked by the firewall rule.
 
 By default the script will check only the last 6 hours in Security log. You can use the `-LastHours` parameter to change this number.
 
+## User Whitelist Feature
 
+You can create a file named `userswhitelist.txt` containing authorized usernames (one per line) to enable a stricter security mode. When this file exists, any IP attempting to log in with a username not in the whitelist will be immediately blocked, regardless of the number of attempts.
+
+Example `userswhitelist.txt` content:
+```
+Administrator
+YourUsername
+AnotherAuthorizedUser
+```
+
+Lines starting with # are treated as comments and are ignored.
 
 ## Other tools
 
-If you want a quick summary of failed logins, just run
+If you want a quick summary of failed logins, you can run either:
 
 ```powershell
-Get-FailedLogons.ps1
+Get-FailedLogons.ps1         # For Event ID 4625 (logon failures)
+Get-FailedCredentials.ps1    # For Event ID 4776 (credential validation failures)
 ```
 
-This will show the number of failed logons attempts for each source IP address.
+Both scripts will show the number of failed attempts for each source IP address.
 
-Alternatively, you can run it with `-ShowUsernames` parameter
+You can run them with the `-ShowUsernames` parameter to group results by usernames instead of IP addresses.
 
-```powershell
-Get-FailedLogons.ps1 -ShowUsernames
-```
-
-which will show the same result but now grouped by usernames.
-
-By default the script will check only the last 6 hours in Security log. You can use the `-LastHours` parameter to change this number.
+By default the scripts will check only the last 6 hours in Security log. You can use the `-LastHours` parameter to change this number.
