@@ -23,9 +23,8 @@ This will create a scheduled task to run `Update-FirewallRule.ps1` (see below) e
 The main script is `Update-FirewallRule.ps1`. It monitors Windows Security logs for suspicious activity and adds blocking rules in Windows Firewall for offending IP addresses. The script checks for:
 
 1. Event ID 4625: Failed logon attempts
-2. Event ID 4776: Failed credential validation attempts
 
-IPs with 3 or more failed attempts of either type will be blocked.
+IPs with 3 or more failed attempts will be blocked.
 
 All blocked IPs are saved in a `blacklist.txt`. You can modify this file if needed. Addresses in this file will ALWAYS be blocked by the firewall rule even if they didn't show up in Security events.
 
@@ -48,15 +47,14 @@ Lines starting with # are treated as comments and are ignored.
 
 ## Other tools
 
-If you want a quick summary of failed logins, you can run either:
+If you want a quick summary of failed logins, you can run:
 
 ```powershell
 Get-FailedLogons.ps1         # For Event ID 4625 (logon failures)
-Get-FailedCredentials.ps1    # For Event ID 4776 (credential validation failures)
 ```
 
-Both scripts will show the number of failed attempts for each source IP address.
+This script will show the number of failed attempts for each source IP address.
 
-You can run them with the `-ShowUsernames` parameter to group results by usernames instead of IP addresses.
+You can run it with the `-ShowUsernames` parameter to group results by usernames instead of IP addresses.
 
-By default the scripts will check only the last 6 hours in Security log. You can use the `-LastHours` parameter to change this number.
+By default the script will check only the last 6 hours in Security log. You can use the `-LastHours` parameter to change this number.

@@ -47,8 +47,6 @@ function Get-FailedIps {
     }
 
     $getFailedLogons = Join-Path $PSScriptRoot 'Get-FailedLogons.ps1'
-    $getFailedCredentials = Join-Path $PSScriptRoot 'Get-FailedCredentials.ps1'
-
     $failedIps = @()
     
     # Get IPs from failed logons (Event ID 4625)
@@ -61,18 +59,6 @@ function Get-FailedIps {
     }
     catch {
         Write-Warning "Error getting failed logons: $_"
-    }
-    
-    # Get IPs from failed credential validations (Event ID 4776)
-    try {
-        & $getFailedCredentials @ExtraParams |
-        ForEach-Object {
-            $failedIps += $_.Name
-        }
-        Write-Verbose "Found $($failedIps.Count) total IPs after including credential failures"
-    }
-    catch {
-        Write-Warning "Error getting failed credentials: $_"
     }
     
     # Return unique IPs
